@@ -6,7 +6,6 @@
 # Please see the LICENSE file that should have been included as part of
 # this package.
 
-import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -81,13 +80,13 @@ def compute_ToD_rate(data_raw):
     index_summer = np.logical_and(
         data.index.month >= 6, data.index.month <= 10)
     index_winter = np.logical_or(
-        data.index.month >= 11,  data.index.month <= 5)
+        data.index.month >= 11, data.index.month <= 5)
 
     # Hour filter
     index_peak = np.logical_and(
         data.index.hour >= 11, data.index.hour <= 18, index_weekday)
     index_off_peak = np.logical_or(
-        data.index.hour < 11,  data.index.hour > 18, index_weekend)
+        data.index.hour < 11, data.index.hour > 18, index_weekend)
 
     # Combine filters
     index_summer_peak = np.logical_and(index_summer, index_peak)

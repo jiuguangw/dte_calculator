@@ -7,7 +7,6 @@
 # this package.
 
 import os
-import sys
 import dte
 
 
