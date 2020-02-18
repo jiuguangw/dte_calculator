@@ -28,7 +28,7 @@ DTE Calculator is a Python-based utility to compare electric service plans based
 
 I was recently trying to compare two electric service plans from DTE Energy - the Residential Electric Service plan vs. the Time of Day plan. The RES is a flat-rate plan, while the ToD has specific rates based on the season and time of day - the more expensive peak rate applies for 11am-7pm on a weekday. However, other than publishing the rates ([link](https://newlook.dteenergy.com/wps/wcm/connect/23195474-a4d1-4d38-aa30-a4426fd3336b/WholeHouseRateOptions.pdf?MOD=AJPERES)), DTE does not provide a utility for determining whether or not switching to the ToD plan would actually save me money, in addition to requiring a 12-month commitment to stay on the plan.
 
-I decided to do my own analysis instead. DTE does provide a function on its website to generate an Energy Usage Report, which contains hours of energy usage data for the previous 13 months. By processing the data from my hourly usage, I then calculated my energy costs for the RES and ToD plans. As it turns out, I do stand to save money by switching to the ToD plan, even without making changes to my current behavior.
+I decided to do my own analysis instead. DTE does provide a function on its website to generate an Energy Usage Report, which contains energy usage data for the previous 13 months on a hourly basis. By processing the data from my hourly usage, I then calculated my energy costs for the RES and ToD plans. As it turns out, I will end up paying a little bit more on the ToD plan, without making changes to my current behavior.
 
 ![DTE Calculator](docs/doc.png?raw=true "DTE Calculator")
 

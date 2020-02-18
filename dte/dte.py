@@ -144,8 +144,8 @@ def compute_RES_rate(data_raw):
     # Compute daily total consumption
     data = data_raw['Total'].resample('D').sum().to_frame()
 
-    data['Cost_CAP_17'] = data['Total'] * RES_CAP_RATE_17KWH
-    data['Cost_NON_CAP_17'] = data['Total'] * RES_NON_CAP_RATE_17KWH
+    data['Cost_CAP_17'] = RES_CUTOFF * RES_CAP_RATE_17KWH
+    data['Cost_NON_CAP_17'] = RES_CUTOFF * RES_NON_CAP_RATE_17KWH
 
     data['Cost_CAP_ADD'] = 0
     data['Cost_NON_CAP_ADD'] = 0
@@ -220,6 +220,7 @@ def dte_calculator(filename):
     # Plot 1 - Consumption
     axarr[0, 0].plot(kwh_monthly.index, kwh_monthly)
     axarr[0, 0].set_title('Consumption by Month (kWh)')
+    axarr[0, 0].set_ylabel('Consumption (kWh)')
     axarr[0, 0].axhline(US_AVERAGE, linewidth=1, color='r',
                         ls='--', label='US Residential Average')
     axarr[0, 0].legend()
@@ -230,6 +231,7 @@ def dte_calculator(filename):
     axarr[0, 1].plot(consumption_offpeak.index,
                      consumption_offpeak, label='Off Peak')
     axarr[0, 1].set_title('Consumption by Month, Peak vs Off Peak')
+    axarr[0, 1].set_ylabel('Consumption (kWh)')
     axarr[0, 1].legend()
     format_plots(axarr[0, 1])
 
@@ -239,12 +241,14 @@ def dte_calculator(filename):
     axarr[1, 0].plot(cost_monthly_ToD.index,
                      cost_monthly_ToD, label='Time of Day Service')
     axarr[1, 0].set_title('Total Cost by Month')
+    axarr[1, 0].set_ylabel('Cost in US Dollars')
     axarr[1, 0].legend()
     format_plots(axarr[1, 0])
 
     # Plot 4 - Savings
     axarr[1, 1].plot(cost_monthly_ToD.index, savings_monthly)
     axarr[1, 1].set_title('Total Savings by Month')
+    axarr[1, 1].set_ylabel('Cost in US Dollars')
 
     plt.text(0.45, 0.9, "RES Total: $" + str(res_total),
              transform=axarr[1, 1].transAxes)
