@@ -184,7 +184,7 @@ def format_plots(plot_object):
     # Change tick spacing
     plot_object.set_xticks(plot_object.get_xticks()[::1])
     plot_object.xaxis.set_major_locator(
-        MonthLocator(range(1, 13), bymonthday=1, interval=1))
+        MonthLocator(range(1, 13), bymonthday=1, interval=2))
     plot_object.xaxis.set_major_formatter(DateFormatter("%b"))
 
 
