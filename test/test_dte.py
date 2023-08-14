@@ -7,15 +7,16 @@
 # this package.
 
 import os
+
 import dte
 
 
-def test_dte():
+def test_dte() -> None:
     # Plot
-    dte.dte_calculator('data/dte.csv')
+    dte.dte_calculator("data/dte.csv")
 
     # Get the file size of the output PDF
-    file_size = os.path.getsize('DTE.pdf')
+    file_size = os.path.getsize("DTE.pdf")
 
     # Check the size is greater than 40 KB
     assert file_size > 20 * 1024, "Test failed"

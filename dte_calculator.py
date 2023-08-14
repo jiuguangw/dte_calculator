@@ -6,11 +6,12 @@
 # Please see the LICENSE file that should have been included as part of
 # this package.
 
-import dte
 import sys
 
+import dte
 
-def main():
+
+def main() -> None:
     dte.dte_calculator(sys.argv[1])
 
 
