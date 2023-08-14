@@ -7,17 +7,20 @@
     <a href="https://www.python.org/">
         <img src="https://img.shields.io/badge/built%20with-Python3-red.svg" />
     </a>
-    <a href="https://travis-ci.com/jiuguangw/dte_calculator">
-    <img src="https://travis-ci.com/jiuguangw/dte_calculator.svg?branch=master">
+    <a href="https://github.com/jiuguangw/dte_calculator/actions">
+      <img src="https://github.com/jiuguangw/dte_calculator/actions/workflows/test.yml/badge.svg">
     </a>
-    <a href="https://codeclimate.com/github/jiuguangw/dte_calculator">
-    <img src="https://img.shields.io/codeclimate/maintainability/jiuguangw/dte_calculator">
+    <a href="https://codecov.io/gh/jiuguangw/dte_calculator">
+      <img src="https://codecov.io/gh/jiuguangw/dte_calculator/branch/main/graph/badge.svg?token=UU0KQ94PAQ" />
     </a>
-    <a href="https://codeclimate.com/github/jiuguangw/dte_calculator/issues">
-    <img src="https://img.shields.io/codeclimate/issues/jiuguangw/dte_calculator">
+    <a href="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg">
     </a>
-    <a href="https://codeclimate.com/github/jiuguangw/dte_calculator/code">
-    <img src="https://img.shields.io/codeclimate/coverage/jiuguangw/dte_calculator">
+    <a href="https://github.com/astral-sh/ruff">
+      <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json">
+    </a>
+    <a href="https://github.com/python/mypy">
+      <img src="http://www.mypy-lang.org/static/mypy_badge.svg">
     </a>
   </p>
 </p>
