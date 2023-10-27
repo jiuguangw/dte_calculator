@@ -1,12 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # Copyright 2020 by Jiuguang Wang (www.robo.guru)
 # All rights reserved.
 # This file is part of DTE Calculator and is released under the  MIT License.
 # Please see the LICENSE file that should have been included as part of
 # this package.
 
-from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -70,12 +67,12 @@ def compute_delivery_charges(kwh_monthly: Series) -> Series:
     return total
 
 
-def compute_ToD_rate(data_raw: DataFrame) -> Tuple[Series, Series, Series]:
+def compute_tod_rate(data_raw: DataFrame) -> tuple[Series, Series, Series]:
     # Init
     data = data_raw
 
-    data["Cost_Cap"] = 0
-    data["Cost_NonCap"] = 0
+    data["Cost_Cap"] = 0.0
+    data["Cost_NonCap"] = 0.0
 
     # Weekday filter
     index_weekday = data.index.weekday < 5
@@ -83,16 +80,21 @@ def compute_ToD_rate(data_raw: DataFrame) -> Tuple[Series, Series, Series]:
 
     # Season filter
     index_summer = np.logical_and(
-        data.index.month >= 6, data.index.month <= 10
+        data.index.month >= 6,
+        data.index.month <= 10,
     )
     index_winter = np.logical_or(data.index.month >= 11, data.index.month <= 5)
 
     # Hour filter
     index_peak = np.logical_and(
-        data.index.hour >= 11, data.index.hour <= 18, index_weekday
+        data.index.hour >= 11,
+        data.index.hour <= 18,
+        index_weekday,
     )
     index_off_peak = np.logical_or(
-        data.index.hour < 11, data.index.hour > 18, index_weekend
+        data.index.hour < 11,
+        data.index.hour > 18,
+        index_weekend,
     )
 
     # Combine filters
@@ -154,17 +156,18 @@ def compute_ToD_rate(data_raw: DataFrame) -> Tuple[Series, Series, Series]:
     return total, consumption_peak, consumption_offpeak
 
 
-def compute_RES_rate(data_raw: DataFrame) -> Series:
+def compute_res_rate(data_raw: DataFrame) -> Series:
     # Compute daily total consumption
     data = data_raw["Total"].resample("D").sum().to_frame()
 
     data["Cost_CAP_17"] = RES_CUTOFF * RES_CAP_RATE_17KWH
     data["Cost_NON_CAP_17"] = RES_CUTOFF * RES_NON_CAP_RATE_17KWH
 
-    data["Cost_CAP_ADD"] = 0
-    data["Cost_NON_CAP_ADD"] = 0
+    data["Cost_CAP_ADD"] = 0.0
+    data["Cost_NON_CAP_ADD"] = 0.0
 
     # Filter
+    data["Total"] = data["Total"].astype(float)
     index = data["Total"] > RES_CUTOFF
     data.loc[index, "Cost_CAP_ADD"] = (
         data["Total"] - RES_CUTOFF
@@ -186,9 +189,7 @@ def compute_RES_rate(data_raw: DataFrame) -> Series:
     )
     cost_monthly = data["Total Cost"].resample(SAMPLE_METHOD).sum()
     sales_tax = cost_monthly * RATE_SALES_TAX
-    total = cost_monthly + delivery_charges_monthly + sales_tax
-
-    return total
+    return cost_monthly + delivery_charges_monthly + sales_tax
 
 
 def format_plots(plot_object: Axes) -> None:
@@ -202,11 +203,9 @@ def format_plots(plot_object: Axes) -> None:
     plot_object.tick_params(labelsize=AXIS_FONT_SIZE)
 
     # Change tick spacing
-    plot_object.set_xticks(plot_object.get_xticks()[::1])
-    plot_object.xaxis.set_major_locator(
-        MonthLocator(range(1, 13), bymonthday=1, interval=2)
-    )
-    plot_object.xaxis.set_major_formatter(DateFormatter("%b"))
+    plot_object.xaxis.set_major_locator(MonthLocator(interval=6))
+    plot_object.xaxis.set_major_formatter(DateFormatter("%b %Y"))
+    plot_object.tick_params(axis="x", rotation=90)
 
 
 def dte_calculator(filename: str) -> None:
@@ -217,26 +216,37 @@ def dte_calculator(filename: str) -> None:
     f, axarr = plt.subplots(2, 2)
 
     # Import data
-    data = pd.read_csv(filename, parse_dates=[["Day", "Hour of Day"]])
-    data = data.set_index(data["Day_Hour of Day"])
-    data.index.rename("Date", inplace=True)
-    data.rename(columns={"Hourly Total": "Total"}, inplace=True)
+    data = pd.read_csv(
+        filename,
+        parse_dates={"Datetime": ["Day", "Hour of Day"]},
+    )
 
+    # If you want to convert the "Datetime" column to datetime dtype explicitly
+    data["Datetime"] = pd.to_datetime(data["Datetime"])
+
+    data = data.set_index(data["Datetime"])
+    data = data.rename_axis("Date")
+    data = data.rename(columns={"Hourly Total": "Total"})
+    data["Total"] = data["Total"].replace(
+        "No Data",
+        0,
+    )  # sometimes DTE has an invalid entry
+    data["Total"] = data["Total"].astype(float)
     # Compute cost for the Residential Electric Service Rate
-    cost_monthly_res = compute_RES_rate(data)
+    cost_monthly_res = compute_res_rate(data)
 
     # Compute cost for the Time of Day Service Rate
-    cost_monthly_ToD, consumption_peak, consumption_offpeak = compute_ToD_rate(
-        data
+    cost_monthly_tod, consumption_peak, consumption_offpeak = compute_tod_rate(
+        data,
     )
 
     # Compute consumption KWH by month
     kwh_monthly = data["Total"].resample(SAMPLE_METHOD).sum()
 
     # Compute savings
-    savings_monthly = cost_monthly_res - cost_monthly_ToD
+    savings_monthly = cost_monthly_res - cost_monthly_tod
     res_total = round(cost_monthly_res.sum(), 2)
-    tod_total = round(cost_monthly_ToD.sum(), 2)
+    tod_total = round(cost_monthly_tod.sum(), 2)
     savings_total = round(savings_monthly.sum(), 2)
 
     # Plot 1 - Consumption
@@ -256,7 +266,9 @@ def dte_calculator(filename: str) -> None:
     # Plot 2 - Peak vs Off Peak
     axarr[0, 1].plot(consumption_peak.index, consumption_peak, label="Peak")
     axarr[0, 1].plot(
-        consumption_offpeak.index, consumption_offpeak, label="Off Peak"
+        consumption_offpeak.index,
+        consumption_offpeak,
+        label="Off Peak",
     )
     axarr[0, 1].set_title("Consumption by Month, Peak vs Off Peak")
     axarr[0, 1].set_ylabel("Consumption (kWh)")
@@ -265,10 +277,14 @@ def dte_calculator(filename: str) -> None:
 
     # Plot 3 -  Services
     axarr[1, 0].plot(
-        cost_monthly_res.index, cost_monthly_res, label="Standard RES Service"
+        cost_monthly_res.index,
+        cost_monthly_res,
+        label="Standard RES Service",
     )
     axarr[1, 0].plot(
-        cost_monthly_ToD.index, cost_monthly_ToD, label="Time of Day Service"
+        cost_monthly_tod.index,
+        cost_monthly_tod,
+        label="Time of Day Service",
     )
     axarr[1, 0].set_title("Total Cost by Month")
     axarr[1, 0].set_ylabel("Cost in US Dollars")
@@ -276,7 +292,7 @@ def dte_calculator(filename: str) -> None:
     format_plots(axarr[1, 0])
 
     # Plot 4 - Savings
-    axarr[1, 1].plot(cost_monthly_ToD.index, savings_monthly)
+    axarr[1, 1].plot(cost_monthly_tod.index, savings_monthly)
     axarr[1, 1].set_title("Total Savings by Month")
     axarr[1, 1].set_ylabel("Cost in US Dollars")
 

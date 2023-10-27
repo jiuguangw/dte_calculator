@@ -1,2 +1,2 @@
 # __init__.py
-from .dte import dte_calculator  # noqa
+from .dte import dte_calculator
